@@ -1,0 +1,528 @@
+[comment encoding = UTF-8 /]
+[module generateDynamics('http://ualberta.edu.cs.ssrg.phy.dynamics')]
+
+
+[template public generateElement(aDynamics : Dynamics)]
+[comment @main /]
+[file ('MainActivity.java', false, 'UTF-8')]
+
+
+package edu.ualberta.ssrg.mda.physics.template.main;
+
+import java.util.Calendar;
+import java.util.List;
+import org.jbox2d.common.Vec2;
+import edu.ualberta.ssrg.mda.physics.template.persistence.DBExporter;
+import edu.ualberta.ssrg.mda.physics.template.persistence.PlainEventExporter;
+import edu.ualberta.ssrg.mda.physics.template.persistence.ScoreVO;
+import edu.ualberta.ssrg.mda.physics.template.persistence.ScoresDAO;
+import edu.ualberta.ssrg.mda.physics.template.persistence.TouchEvent;
+import edu.ualberta.ssrg.mda.physics.template.registers.IScoreRegister;
+import edu.ualberta.ssrg.mda.physics.template.registers.ScoreRegisterDevice;
+import edu.ualberta.ssrg.mda.physics.template.registers.ScoreRegisterRest;
+import edu.ualberta.ssrg.mda.physics.template.registers.ScoresRegisterSOAP;
+import edu.ualberta.ssrg.mda.physics.template.main.R;
+import edu.ualberta.ssrg.mda.physics.template.main.PhysicsView.AppearTimedEvent;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Surface;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+// This game template was developed based on the Testing-Box2d Project
+// Available in https://code.google.com/p/testing-box2d/ under MIT license
+public class MainActivity extends Activity {
+
+	// Constants 
+	private static final String PREF_ROTATION = "pref.key.rotation";
+	private static final String PREF_GRAVITY = "pref.key.gravity";
+	private static final int GRAVITY_NORMAL = 0;
+	private static final int GRAVITY_MOON = 3;
+	private static final int GRAVITY_ZERO = 1;
+	private static final int GRAVITY_ACCELEROMETER = 2;
+	public static final int OBSTACLE_NUMBER = 2;
+	public static final int TIME = 3000;
+	
+	//////////////////////////////////////
+	// Main resources
+	//////////////////////////////////////
+	
+	// The game canvas (representation of the PhysicsWorld model)
+	private PhysicsView viewCanvas;
+	
+	// The game physics word model
+	private PhysicsModel world;
+	
+	// The registers (soap, in-device, and rest)-based helpers
+	private IScoreRegister registerSOAP;
+	private IScoreRegister registerDevice;
+	private IScoreRegister registerRest;
+	
+	// DAO manager of the game
+	private ScoresDAO database;
+	
+	//Database Exporter
+	private DBExporter dbExporter;
+	
+	//Observable bridge for asynchronous touch notifications (score manager)
+	private ObservableWrapper<TouchEvent> runway; 
+	
+	// Score Manager
+	private ScoringManager scoreManager;
+		
+	// Collision detector
+	private CollisionDetector collider;
+		
+	// States
+	private boolean defaultLandscape;
+	private boolean welcomed;
+	private int rotation;
+	private int gravity;
+	
+	// Session Information
+	private String username;
+	private long timeStart;
+	private long timeEnd;
+	
+	// Canvas update independent thread
+	private Runnable r;
+
+	// Called when the game starts
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		
+		// Recovering game previous state
+		super.onCreate(savedInstanceState);
+		
+		scoreManager = new ScoringManager(this);
+		runway = new ObservableWrapper<TouchEvent>();
+		solveForScoreObservables();
+		
+		viewCanvas = new PhysicsView(this, this);
+		viewCanvas.setRunway(runway);
+
+		setContentView(viewCanvas);
+
+		database = new ScoresDAO(this);
+		registerSOAP = new ScoresRegisterSOAP();
+		registerRest = new ScoreRegisterRest();
+		registerDevice = new ScoreRegisterDevice(database);
+		dbExporter = new DBExporter();
+		
+		// Default New World: new World(new Vec2(0.0f, -10.0f), true);
+		// Define Gravity for the world according to the previous instance
+		gravity = getPreferences(Context.MODE_PRIVATE).getInt(PREF_GRAVITY, GRAVITY_ACCELEROMETER);
+		
+		// Creates new world
+		if (world == null) {
+			// Initialize Gravity Vector (No Modification to 'Y' acceleration)
+			Vec2 grav = new Vec2(0.0f, 0.0f);
+			
+			// 'Y' acceleration depending on preferences
+			if (gravity == GRAVITY_NORMAL) 
+			{
+				grav.y = -10.0f;
+			} 
+			else if (gravity == GRAVITY_MOON) 
+			{
+				grav.y = -1.67f;
+			}
+			world = new PhysicsModel();
+			collider = new CollisionDetector();
+			collider.setRunway(runway);
+			world.create(grav, collider);
+			world.setWorldGravity([environment.gravity/].0f);
+		}
+		
+		viewCanvas.setModel(world);
+			
+		// Landscape Configuration according to current device orientation
+		
+		if(!welcomed){
+			showWelcomeView();
+			welcomed = true;
+		}
+		
+	}
+	
+	private void setActivitiesToView(){
+		
+		// Setting activities
+		[for (it : AppearActivity | activities)]
+		[if (it.oclIsKindOf(AppearActivity))]
+		
+		AppearTimedEvent [it.id/]  = viewCanvas.new AppearTimedEvent();
+		obstacleEvent.setObjectId(PhysicsView.[it.actorID/]Id);
+		obstacleEvent.setX([it.positionX/]);
+		obstacleEvent.setY([it.positionY/]);
+		obstacleEvent.setaSpeed([it.angularSpeed/]);
+		obstacleEvent.setlSpeed([it.linearSpeed/]);
+		obstacleEvent.setFrequency([it.frequency/]*1000);
+		viewCanvas.setActivity([it.id/] );
+		[/if]
+		[/for]
+		return view;
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+	}
+	
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return world;
+	}
+
+	@Override
+	protected void onResume() {
+		
+		super.onResume();
+		
+		r = new Runnable() 
+		{
+			public void run() {
+				world.update();
+				viewCanvas.invalidate();
+				getWindow().getDecorView().postDelayed(r, 10);
+			}
+		};
+		
+		getWindow().getDecorView().post(r);
+		rotation = getWindowManager().getDefaultDisplay().getOrientation();
+		
+		Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+		editor.putInt(PREF_ROTATION, rotation);
+		editor.commit();
+		
+		if (gravity == GRAVITY_ACCELEROMETER) {
+			SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+			Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+			
+			if (sensor != null) {
+				sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+			}
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		getWindow().getDecorView().removeCallbacks(r);
+		SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		sensorManager.unregisterListener(listener);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	// On menu change, saves the selected gravity
+	private void saveGravity(int newGravity) {
+		gravity = newGravity;
+		Editor editor = getPreferences(MODE_PRIVATE).edit();
+		editor.putInt(PREF_GRAVITY, gravity);
+		editor.commit();
+	}
+	
+	// On menu remove action, remove all the objects from the world
+	private void removeObjects() {
+		world.clearWorld();
+	}
+	
+	// Rotates the screen (on menu action)
+	private void rotateScreen() {
+		int orientation;
+		
+		if (defaultLandscape) 
+		{
+			if (rotation == Surface.ROTATION_0) 
+			{
+				if (Build.VERSION.SDK_INT >= 9) 
+				{
+					orientation = 9;
+				}
+				else {
+					orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+				}
+			} 
+			else if (rotation == Surface.ROTATION_90) {
+				orientation = 8;
+			} 
+			else if (rotation == Surface.ROTATION_180) {
+				orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+			}
+			else {
+				orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			}
+		} 
+		else 
+		{
+			if (rotation == Surface.ROTATION_0) {
+				orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			} 
+			else if (rotation == Surface.ROTATION_90) 
+			{
+				if (Build.VERSION.SDK_INT >= 9) {
+					orientation = 9;
+				} 
+				else {
+					orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+				}
+			} 
+			else if (rotation == Surface.ROTATION_180) 
+			{
+				orientation = 8;
+			} 
+			else {
+				orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+			}
+		}
+		setRequestedOrientation(orientation);
+	}
+
+	// Manages gyroscope events, and impacts gravity vector according screen rotation 
+	private final SensorEventListener listener = new SensorEventListener() {
+		
+		public void onSensorChanged(SensorEvent event) {
+			float x, y;
+			if (rotation == Surface.ROTATION_0) {
+				x = -event.values[ '[' /]SensorManager.DATA_X[ ']' /];
+				y = -event.values[ '[' /]SensorManager.DATA_Y[ ']' /];
+			} 
+			else if (rotation == Surface.ROTATION_90){
+				x = event.values[ '[' /]SensorManager.DATA_Y[ ']' /];
+				y = -event.values[ '[' /]SensorManager.DATA_X[ ']' /];
+			} 
+			else if (rotation == Surface.ROTATION_180){
+				x = event.values[ '[' /]SensorManager.DATA_X[ ']' /];
+				y = event.values[ '[' /]SensorManager.DATA_Y[ ']' /];
+			} 
+			else {
+				x = -event.values[ '[' /]SensorManager.DATA_Y[ ']' /];
+				y = event.values[ '[' /]SensorManager.DATA_X[ ']' /];
+			}
+			world.getWorld().setGravity(new Vec2(x, y));
+		}
+
+		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		}
+	};
+	
+	
+	
+	
+	///////////////////////////////////////////////////
+	// Master Event and Activity Shifting Management
+	///////////////////////////////////////////////////
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		 
+		String date = java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+
+		// End Game Activity Events
+		if(requestCode == EndGameActivity.LISTENER_CODE){
+			Bundle extras = data.getExtras();
+            if (extras != null) {
+                String eventId = extras.getString(EndGameActivity.EVENT_FLAG);              
+                
+                if(eventId.equals(EndGameActivity.NEW_GAME_EVENT)){
+                	startGame();
+                }
+                else if(eventId.equals(EndGameActivity.SAVE_DEVICE_EVENT)){
+                	registerDevice.submitScore(username, scoreManager.getScoreVO(), null);
+                	PlainEventExporter.printEvents("[ '[' /]"+username+"[ ']' /]"+ " [ '[' /]"+ date +"[ ']' /] " + scoreManager.getScoreVO().getEvents());
+                	System.out.println(scoreManager.getTouchEvents().toString());
+                	showToast("Your metrics were registered locally");
+                	displayEndOfGameView();
+                }
+                else if(eventId.equals(EndGameActivity.SEND_REST_EVENT)){
+                	registerRest.submitScore(username, scoreManager.getScoreVO(), null);
+                	showToast("Your score: was registered via REST Service");
+                	startGame();
+                }
+                else if(eventId.equals(EndGameActivity.SEND_SERVICE_EVENT)){
+                	registerSOAP.submitScore(username, scoreManager.getScoreVO(), null);
+                	showToast("Your score: was registered via SOAP Service");
+                	startGame();
+                }      
+                else if(eventId.equals(EndGameActivity.VIEW_SCORES)){
+                	displayScoreListView();
+                }
+                else if(eventId.equals(EndGameActivity.CLOSE)){
+                	
+                	dbExporter.execute();
+                	finish();
+                }
+            }
+		}
+		
+		// Welcome Activity Events
+		else if(requestCode == WelcomeActivity.START){
+			Bundle extras = data.getExtras();
+            if (extras != null) {
+            	username =  extras.getString(WelcomeActivity.USERNAME);
+            	startGame();
+            }
+			
+		}
+		else if(requestCode == ScoresActivity.BACK){
+			displayEndOfGameView();
+		}
+	}
+	
+	// Displays the score list, uses the ActivityBridge to pass the score list from the database
+	private void displayScoreListView(){
+		database.open();
+		List<ScoreVO> values = database.getAllScores();
+		database.close();
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		Intent intent = new Intent(viewCanvas.getContext(), ScoresActivity.class);
+		ActivitiesBridge.setObject(values);
+		this.startActivityForResult(intent, ScoresActivity.BACK);
+	}
+	
+	// Displays the end of game view (menu)
+	public void displayEndOfGameView(){
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		Intent intent = new Intent(this, EndGameActivity.class);
+		ScoreVO eScore = scoreManager.getScoreVO();
+		ActivitiesBridge.setObject(eScore);
+		this.startActivityForResult(intent, EndGameActivity.LISTENER_CODE);
+   
+	}
+	
+	// Displays the welcome view
+	private void showWelcomeView(){
+		Intent intent = new Intent(this, WelcomeActivity.class);
+		startActivityForResult(intent, WelcomeActivity.START);
+	}
+	
+	//////////////////////////////////////////////////////////////////////
+	// Default Main Menu Event Handler
+	/////////////////////////////////////////////////////////////////////
+	
+	// Clear the canvas, rotate screen, change gravity, close the app
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch (item.getItemId()) 
+		{
+			case R.id.start:{
+				
+				
+				return true;
+			}
+			case R.id.stop:{
+				
+				return true;
+			}
+			case R.id.results: {
+				
+				//	displayEndOfGameView();
+				
+			}
+			case R.id.item_close:{
+				finish();
+			}
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	//////////////////////////////
+	// Utilities
+	//////////////////////////////
+	
+	//Restarts the game (remove all the objects from the model, and resets the collision detector
+	private void startGame(){
+		removeObjects();
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+			
+		viewCanvas.restartCanvas();
+		setActivitiesToView();
+		scoreManager.reset();
+		
+		timeEnd = 0 ;
+		timeStart = 0;
+		this.scoreManager.initializeTimedEvents();
+		showToast("1. Touch the to screen to start!");
+		
+	}
+	
+	private void stopGame(){
+		timeEnd = System.currentTimeMillis();
+		System.out.println(timeEnd-timeStart);
+		showToast("4. Timer Stoped!");
+	}
+	
+	// Shows a simple toast to the user
+	public void showToast(String text){
+		Context context = getApplicationContext();
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = makeCuztomizedToast(context, text, duration);
+		toast.show();
+	}
+	
+	// Registers a observer in the event hub (runway)
+	public void solveForScoreObservables(){
+		runway.addObserver(scoreManager);
+	}
+	
+	public static Toast makeCuztomizedToast(Context contextP, CharSequence text, int duration) {
+	    Toast toast = Toast.makeText(contextP, text, duration);
+
+	    View rootView = toast.getView();
+	    LinearLayout linearLayout = null;
+	    TextView messageTextView = null;
+
+	    // check (expected) toast layout
+	    if (rootView instanceof LinearLayout) {
+	        linearLayout = (LinearLayout) rootView;
+
+	        if (linearLayout.getChildCount() == 1) {
+	            View child = linearLayout.getChildAt(0);
+
+	            if (child instanceof TextView) {
+	                messageTextView = (TextView) child;
+	            }
+	        }
+	    }
+
+	    if (linearLayout == null || messageTextView == null) {
+	        return toast;
+	    }
+
+	    messageTextView.setTextSize(25);
+	    messageTextView.setMinWidth(10000);
+	    messageTextView.setGravity(Gravity.CENTER);
+	    ViewGroup.LayoutParams textParams = messageTextView.getLayoutParams();
+	    
+	    ((LinearLayout.LayoutParams) textParams).gravity = Gravity.CENTER_HORIZONTAL;
+	    
+	    return toast;
+	}
+}
+
+
+[/file]
+[/template]

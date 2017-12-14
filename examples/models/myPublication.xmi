@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ualberta.ssrg.publication:Database xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ualberta.ssrg.publication="http://ualberta.ssrg.publication">
+  <publications title="Thiking Phython" prologue="Start with the basics, including language syntax and semantics" nbPages="88"/>
+  <publications title="Head First Design Patterns" prologue="Welcome to Design Patterns" nbPages="134"/>
+</ualberta.ssrg.publication:Database>

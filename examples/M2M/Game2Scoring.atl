@@ -1,0 +1,95 @@
+-- @path Phydsl=/PhyDSLChain/metamodels/Phydsl.ecore
+-- @path Scoring=/PhyDSLChain/metamodels/Scoring.ecore
+
+module Game2Scoring;
+create OUT : Scoring from IN : Phydsl;
+
+-- Entrypint to Phydsl to Scoring
+rule main {
+	from
+		m : Phydsl!Model
+	to 
+		r : Scoring!ScoreRules (
+			collisions <- Phydsl!ScoreRule.allInstances()->select(e | e.scoreDefinition.definition.oclIsKindOf(Phydsl!ContactScore)),
+			timed <-  Phydsl!ScoreRule.allInstances()->select(e | e.scoreDefinition.definition.oclIsKindOf(Phydsl!TimedScore))
+		)
+}
+
+-- Transforms a generic Score Rule into a Collision rule using helpers to deal with the polymorphism of subfeatures due grammar
+rule ScoreRule2CollisionRule {
+	from
+		sr : Phydsl!ScoreRule(
+			sr.scoreDefinition.definition.oclIsKindOf(Phydsl!ContactScore) -- filters only score rules of type 
+		)
+	to 
+		cr : Scoring!CollisionRule (
+			id <- sr.id,
+			actorAID <- sr.getCollisionAID(),
+			actorBID <- sr.getCollisionBID(),
+			action <- sr.scoreDefinition.effect -- called rule Effe2Action
+			
+
+		)
+}
+
+-- Transforms a generic Score Rule into a Timmed Rule using helpers to deal with the polymorphism of subfeatures due grammar
+rule ScoreRule2TimedRule {
+	from
+		sr : Phydsl!ScoreRule(
+			sr.scoreDefinition.definition.oclIsKindOf(Phydsl!TimedScore)
+		)
+	to 
+		ts : Scoring!TimedRule (
+			id <- sr.id,
+			time <- sr.getTime(),
+			action <- sr.scoreDefinition.effect
+		)
+}
+
+-- Transforms a 
+rule Effect2Action {
+	from
+		ef : Phydsl!ScoreEffect
+	to 
+		ac : Scoring!Action (
+			
+			gameEnds <- ef.end.boolean.solveBool(),
+			points <- ef.points.toString(),
+			userLoses <- ef.loses.boolean.solveBool()
+		)
+}
+
+helper def: getAllTimedRules() : Set(Phydsl!ScoreRule) = Phydsl!ScoreRule.allInstances();
+
+helper def: getAllContactRules() : Set(Phydsl!ScoreRule) = Phydsl!ScoreRule.allInstances();
+
+helper context Phydsl!ScoreRule def: getCollisionAID(): String = 
+
+	let cs: Phydsl!ContactScore =   self.scoreDefinition.definition -- Fooling ATL and by casting 
+		
+	in cs.elementA.name;
+
+
+helper context Phydsl!ScoreRule def: getCollisionBID(): String = 
+
+	let cs: Phydsl!ContactScore =   self.scoreDefinition.definition
+			
+	in cs.elementB.name;
+
+helper context Phydsl!ScoreRule def: getTime(): Integer = 
+
+	let cs: Phydsl!TimedScore =   self.scoreDefinition.definition
+			
+	in cs.time;
+
+helper context Phydsl!BooleanType  def: solveBool(): Boolean = 
+	if self.value = 1
+	then true
+	else false
+	endif;
+
+helper context Phydsl!SignedInt def: toString(): String =
+	if self.sign.oclIsUndefined()
+	then self.value.toString()
+	else self.sign.toString().concat(self.value.toString())
+	endif;

@@ -1,0 +1,55 @@
+-- @path Screens=/ualberta.edu.cs.ssrg.screens.m2m/metamodels/Screens.ecore
+-- @path Simple=/ualberta.edu.cs.ssrg.screens.m2m/metamodels/ScreenSimple.ecore
+
+module Screens2Simple;
+create OUT : ScreenSimple from IN : Screens;
+
+rule Model2Application {
+	from
+		model: Screens!Model
+	to 
+		app : ScreenSimple!Application (
+			name <- model.application.first().name,
+			package <- model.application.first().package,
+			useCamera <- model.application.first().permisionSection.first().permission.first().camera.endsWith('true'),
+			useGeoLocation <- model.application.first().permisionSection.first().permission.first().geo.endsWith('true'),
+			useNetwork <- model.application.first().permisionSection.first().permission.first().net.endsWith('true'),
+			useStorage <- model.application.first().permisionSection.first().permission.first().storage.endsWith('true'),
+			screens <- model.application.first().screensSection.first().screens
+		)
+}
+
+rule ComplexScreen2SimpleScreen{
+	from
+		cscreen: Screens!Screen
+	to
+		sscreen: ScreenSimple!Screen(
+			name <- cscreen.name,
+			isMain <- cscreen.main.toString().endsWith('true'),
+			transitions <- cscreen.getAllTransitions()
+		)
+}
+
+rule ComplexTransition2SimpleTransition {
+	from
+		ctrans : Screens!Transition
+	to 
+		strans : ScreenSimple!Transition (
+			name <- ctrans.name,
+			destination <- ctrans.toS,
+			trigger <- ctrans.trigger
+		)
+}
+
+rule ComplexTrigger2SimpleTrigger{
+	from
+		ctrigger : Screens!Trigger
+	to 
+		strigger : ScreenSimple!Button (
+			name <- ctrigger.name,
+			isMenuItem <- ctrigger.menu.toString().endsWith('true')
+		)
+}
+
+helper context Screens!Screen def: getAllTransitions() : Set(Screens!Transition) = 
+	Screens!Transition.allInstances()->select(i | i.fromS.name.endsWith(self.name));

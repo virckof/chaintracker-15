@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ualberta.edu.cs.ssrg.phy.layout:Layout
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:ualberta.edu.cs.ssrg.phy.layout="http://ualberta.edu.cs.ssrg.phy.layout"
+    xsi:schemaLocation="http://ualberta.edu.cs.ssrg.phy.layout ../metamodels/Layout.ecore">
+  <cells x="5"
+      actor="//@actors.0"
+      y="5"/>
+  <actors id="alien"
+      density="1"
+      elastisity="1"
+      friction="1"
+      cell="//@cells.0"
+      image="greenAlien"/>
+</ualberta.edu.cs.ssrg.phy.layout:Layout>

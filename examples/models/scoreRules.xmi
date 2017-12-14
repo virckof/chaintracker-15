@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ualberta.edu.cs.ssrg.phy.scoring:ScoreRules
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:ualberta.edu.cs.ssrg.phy.scoring="http://ualberta.edu.cs.ssrg.phy.scoring"
+    xsi:schemaLocation="http://ualberta.edu.cs.ssrg.phy.scoring ../metamodels/Scoring.ecore">
+  <collisions
+      id="smashCollision"
+      actorAID="rock"
+      actorBID="alien"/>
+  <timed id="timeLimit"
+      time="5"/>
+</ualberta.edu.cs.ssrg.phy.scoring:ScoreRules>

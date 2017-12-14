@@ -1,0 +1,367 @@
+[comment encoding = UTF-8 /]
+[module generateLayout('http://ualberta.edu.cs.ssrg.phy.layout')]
+
+
+[template public generateElement(aLayout : Layout)]
+[comment @main /]
+[file ('PhysicsView.java', false, 'UTF-8')]
+
+
+	
+	// Dynamic bodies images
+	[for (it : Actor | actors)]
+	private Bitmap [it.id/];
+	[/for]
+
+	private Canvas canvas;
+	
+	// Dynamic type id
+	[for (it : Actor | actors)]
+	public static Object [it.id/]Id = new Object();
+	[/for]
+
+	//Activities
+	public ArrayList<AsyncTask> activities;
+	
+	
+	// Updates and draws the physics canvas
+	@Override
+	protected void onDraw(Canvas canvasP) {
+		canvas = canvasP;
+		
+		super.onDraw(canvas);
+		if (crate == null) {
+
+			[for (it : Actor | actors)]
+			int  [it.id/]s = { R.drawable.[it.image/]_1280,
+							R.drawable.[it.image/]_800,
+							R.drawable.[it.image/]_480,
+							R.drawable.[it.image/]_320 };
+			[/for]
+			
+			int[ '[' /][ ']' /] sizes = { 1280, 800, 480, 320 };
+			int size = getWidth();
+			
+			[for (it : Actor | actors)]
+			[it.id/] = getImageFromArrayForSize(res, [it.id/]s, sizes, size);
+			[/for]
+	
+		}
+
+		canvas.drawColor(Color.BLACK); 
+		int a = getHeight();
+		canvas.translate(0, getHeight());
+		canvas.scale(1.0f, -1.0f);
+		float scale = getWidth() / 10f;
+
+		Body body = world.getWorld().getBodyList();
+		Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		
+		while (body != null) 
+		{
+			if (body.m_userData == null) {
+				body = body.getNext();
+				continue;
+			}
+
+			Vec2 position = body.getPosition();
+			Fixture fixture = body.getFixtureList();
+			Shape shape = fixture.getShape();
+			Bitmap bitmap;
+
+			
+			[for (it : Actor | actors)]
+			[if (i = 1)]
+			if (body.m_userData == [it.id/]Id) {
+				bitmap = [it.id/];
+			}
+			[else]
+			else if (body.m_userData == [it.id/]Id) {
+				bitmap = [it.id/];
+			}
+			[/if]
+			[/for]
+			else {
+				throw new RuntimeException();
+			}
+			
+			
+			if (shape instanceof CircleShape) {
+				CircleShape circleShape = (CircleShape) shape;
+				canvas.save();
+				canvas.rotate((float) (180 * body.getAngle() / Math.PI), scale * position.x, scale * position.y);
+				canvas.drawBitmap(bitmap, scale * (position.x - circleShape.m_radius), scale * (position.y - circleShape.m_radius),
+						new Paint(Paint.ANTI_ALIAS_FLAG));
+				canvas.restore();
+			} 
+			else if (shape instanceof PolygonShape) {
+				canvas.save(Canvas.MATRIX_SAVE_FLAG);
+				canvas.rotate((float) (180 * body.getAngle() / Math.PI), scale * position.x, scale * position.y);
+				canvas.drawBitmap(bitmap, scale * (position.x), scale * (position.y), new Paint(Paint.ANTI_ALIAS_FLAG));
+				canvas.restore();
+			}
+			body = body.getNext();
+		}
+		
+	}
+	
+	public void setModel(PhysicsModel world) {
+		this.world = world;
+	}
+	
+
+	// Creates Joints between the touch prints of the user and a body
+	@Override
+	public boolean onTouchEvent(MotionEvent event) 
+	{
+		int action = event.getAction() & MotionEvent.ACTION_MASK;
+		int pointerIndex = event.getAction() >> MotionEvent.ACTION_POINTER_ID_SHIFT;
+		final float x = event.getX(pointerIndex) * 10.0f / getWidth();
+		final float y = (getHeight() - event.getY(pointerIndex)) * 10.0f / getWidth();
+		final Vec2 vec = new Vec2(x, y);
+		final int pointerId = event.getPointerId(pointerIndex);
+	
+		
+			if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) 
+			{
+				world.getWorld().queryAABB(
+						
+						// First Query Parameter QueryCallback
+						new QueryCallback() {
+							public boolean reportFixture(Fixture fixture) {
+								Body body = fixture.m_body;
+								MouseJointDef jointDef = new MouseJointDef();
+								jointDef.bodyA = body;
+								jointDef.bodyB = body;
+								jointDef.target.x = x;
+								jointDef.target.y = y;
+								jointDef.maxForce = 8000.0f * body.getMass();
+								MouseJoint mouseJoint = (MouseJoint) world.getWorld().createJoint(jointDef);
+								if (mouseJoints.containsKey(pointerId)) {
+									Log.w("joint existing", "pointer id: " + pointerId);
+									world.getWorld().destroyJoint(mouseJoints.get(pointerId));
+								}
+								mouseJoints.put(pointerId, mouseJoint);
+								
+								onElementTouch(body, body.getPosition().x, body.getPosition().y);
+															
+								return false;
+							}
+						},
+						// Second Query Parameter
+						new AABB(vec, vec));
+			}
+			
+			if (event.getAction() == MotionEvent.ACTION_MOVE) {
+				for (int i = 0; i < event.getPointerCount(); i++) {
+					int id = event.getPointerId(i);
+					if (mouseJoints.containsKey(id)) {
+						vec.x = event.getX(i) * 10.0f / getWidth();
+						vec.y = (getHeight() - event.getY(i)) * 10.0f / getWidth();
+						mouseJoints.get(id).setTarget(vec);
+					}
+				}
+			}
+			
+			if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP) {
+				
+				if (mouseJoints.containsKey(pointerId)) {
+					world.getWorld().destroyJoint(mouseJoints.remove(pointerId));
+				}
+				if (!gameStarted){
+					startGame(x, y);				
+				}
+			}
+		
+		return super.onTouchEvent(event);
+	}
+	
+	///////////////////////////////////////////////////
+	// Game lifecycle
+	//////////////////////////////////////////////////
+	private void startGame(float x, float y){	
+
+		// Setting actors mobile actors
+	[for (cell : Cell | cells)]
+		[if (cell.actor.oclIsKindOf(Actor))]
+		world.addBox([cell.x/], [cell.y/], [cell.actor.id/]Id, [cell.actor.density/], [cell.actor.elastisity/], [cell.actor.friction/], [cell.actor.dynamic/]);	
+		[/if]
+	[/for]
+
+		this.activateActivities();
+	
+		
+		gameStarted = true;
+	}
+
+
+
+
+	
+	// AppearTimedEvent, creates objects and interacts with the physics world every tick according with the timer.
+	protected class AppearTimedEvent extends AsyncTask<Context, Integer, String>{
+		
+		private Object objectId;
+		private float x;
+		private float y;
+		private float aSpeed;
+		private float lSpeed;
+		private int frequency;
+		
+		public int getFrequency() {
+			return frequency;
+		}
+
+		public void setFrequency(int frequency) {
+			this.frequency = frequency;
+		}
+
+		public Object getObjectId() {
+			return objectId;
+		}
+
+		public void setObjectId(Object objectId) {
+			this.objectId = objectId;
+		}
+
+		public float getX() {
+			return x;
+		}
+
+		public void setX(float x) {
+			this.x = x;
+		}
+
+		public float getY() {
+			return y;
+		}
+
+		public void setY(float y) {
+			this.y = y;
+		}
+
+		public float getaSpeed() {
+			return aSpeed;
+		}
+
+		public void setaSpeed(float aSpeed) {
+			this.aSpeed = aSpeed;
+		}
+
+		public float getlSpeed() {
+			return lSpeed;
+		}
+
+		public void setlSpeed(float lSpeed) {
+			this.lSpeed = lSpeed;
+		}
+
+		public void setActivity(AsyncTask <Context, Integer, String> act){
+			activities.add(act);
+		}
+	
+		private void activateActivities(){
+		
+			for(AsyncTask<Context, Integer, String> a : activities){
+				a.execute(context);
+			}
+		}
+
+			
+		@Override
+        protected String doInBackground( Context... params ) {
+			
+	    	while(!gameEnded){
+				try {
+					Thread.sleep(this.getFrequency());
+					// Caught by onProgressUpdate below
+					gameEnded = true;
+					publishProgress(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}				
+			}
+	    	return "Timed";
+		}
+		
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			
+			Vec2 linearVel = new Vec2(lSpeed, lSpeed);
+			world.addEnergizedBox(x, y, objectId, 1.0f, 0.5f, 0.4f, aSpeed, linearVel);
+		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+			this.cancel(true);
+		}
+	}
+	
+	
+	//////////////////////////////
+	// Event Managers
+	//////////////////////////////
+	public void onElementTouch(Body body, double x, double y){
+		
+		ArrayList <Body> bodies = new ArrayList<Body>();
+		bodies.add(body);
+		
+		TouchEvent ev = new TouchEvent(bodies, x, y, System.currentTimeMillis());
+		if(!gameStarted ){	
+			//An ArrayList is modeled just in case we are dealing with multi-touch devices
+			ArrayList<TouchEvent> notification = new ArrayList<TouchEvent>();
+			notification.add(ev);
+			runway.notifyChange(notification);
+		}
+
+	}
+	
+	//////////////////////////////
+	// Utilities
+	//////////////////////////////
+	public void restartCanvas() {
+		gameStarted=false;
+		gameEnded=false;
+		activities.clear();
+	}
+	
+	public boolean isGameStarted() {
+		return gameStarted;
+	}
+
+	public void setGameStarted(boolean gameStarted) {
+		this.gameStarted = gameStarted;
+	}
+
+	// Shows a simple toast to the user
+	public void showToast(String text){
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = MainActivity.makeCuztomizedToast(context, text, duration);
+		toast.show();
+	}
+	
+	public void setRunway(ObservableWrapper<TouchEvent> runway) {
+		this.runway = runway;
+	}
+	
+	public void removeBody(Body toRemove){
+		world.deleteItem(toRemove);
+	}
+	
+	public void highlightCancellation(double  x, double y){
+		float scale = getWidth() / 10;
+		Paint paint = new Paint();
+		paint.setStyle(Paint.Style.STROKE);
+		paint.setStrokeWidth(6);
+		paint.setColor(Color.BLUE);
+		canvas.drawCircle((float)x* (scale)+24, (float)y* (scale)+24 , 27, paint);
+		
+	}	
+	
+	
+}
+[/file]
+[/template]
+
+

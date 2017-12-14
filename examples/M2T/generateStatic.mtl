@@ -1,0 +1,128 @@
+[comment encoding = UTF-8 /]
+[module generateStatic('http://edu.ca.ualberta.ssrg.screensimple')]
+
+
+[template public generateElement(app : Application)]
+[comment @main/]
+
+[file ('AndroidManifest.xml', false, 'UTF-8')]
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="[app._package/]"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="21" />
+    
+	[if(app.useCamera)]
+		<uses-permission android:name="android.permission.CAMERA"/>
+	[/if]  
+	[if(app.useGeoLocation)]
+		<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+	[/if] 
+	[if(app.useNetwork)]
+		<uses-permission android:name="android.permission.INTERNET"/>
+		<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	[/if] 
+	[if(app.useStorage)]
+		<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+		<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+	[/if]
+	
+	[if(app.useCamera)]
+	<uses-feature 
+		android:name="android.hardware.camera" 
+	/>
+	[/if]
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+
+		[for (s : Screen | app.screens)]
+		[if (s.isMain)]
+		<activity
+            android:name=".[s.name/]Activity"
+            android:label="[s.name/]" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+		[else]
+		<activity
+            android:name=".[s.name/]Activity"
+            android:label="[s.name/]" >
+        </activity>
+		[/if]
+		[/for]
+    </application>
+
+</manifest>
+
+
+[/file]
+
+[for (s : Screen | app.screens)]
+[file (s.name.concat('.xml').toLowerCase(), false, 'UTF-8')]
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+tools:context="[app._package/].[s.name/]Activity" >
+
+	<item
+	    android:id="@+id/action_options"
+	    android:orderInCategory="100"
+	    android:title="Options"
+	    app:showAsAction="always">
+
+		<menu>
+		[for (t : Transition | s.transitions)]
+		[if (t.trigger.isMenuItem)]
+			<item
+				android:id="@+id/action_[t.destination.name.toLowerCase()/]"
+			    android:orderInCategory="100"
+			    android:title="[t.destination.name/]"
+			    app:showAsAction="always"/>
+		[/if]
+		[/for]
+		</menu>
+	</item>	
+
+</menu>
+
+[/file]
+
+[file (s.name.concat('_activity.xml').toLowerCase(), false, 'UTF-8')]
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:paddingBottom="16dp"
+android:paddingLeft="16dp"
+android:paddingRight="16dp"
+android:paddingTop="16dp"
+android:layout_gravity="center_vertical"
+android:orientation="vertical"
+tools:context="[app._package/].[s.name/]Activity" >
+
+	[for (t : Transition | s.transitions)]
+	[if (t.trigger.isMenuItem = false)]
+	<Button
+        android:id="@+id/[t.trigger.name/]"
+        android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+        android:text="[t.trigger.name/]"
+        android:onClick="[t.name/]" />
+
+	[/if]
+	[/for]	
+</LinearLayout>
+[/file]
+[/for]
+[/template]

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ualberta.ssrg.book:Library
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ualberta.ssrg.book="ualberta.ssrg.book"
+    xsi:schemaLocation="ualberta.ssrg.book /Book2Publication/metamodels/Book.ecore">
+  <books title="Thiking Phython">
+    <chapters
+        title="The Basics"
+        nbPages="54"
+        author="Allen B. Downey">
+      <digest
+          content="Start with the basics, including language syntax and semantics"
+          nbWords="9"/>
+    </chapters>
+    <chapters
+        title="Values and Variables"
+        nbPages="23"
+        author="Allen B. Downey">
+      <digest
+          content="Learn values, variables, statements, and functions"
+          nbWords="6"/>
+    </chapters>
+    <chapters
+        title="Data Structures"
+        nbPages="11"
+        author="Allen B. Downey">
+      <digest
+          content="Data structures in a logical progression"
+          nbWords="6"/>
+    </chapters>
+  </books>
+  <books title="Head First Design Patterns">
+    <chapters
+        title="Intro to Design Patterns"
+        nbPages="12"
+        author="Eric Freema">
+      <digest
+          content="Welcome to Design Patterns"
+          nbWords="3"/>
+    </chapters>
+    <chapters
+        title="The Observer Pattern"
+        nbPages="45"
+        author="Kathy Sierra">
+      <digest
+          content="Keeping your objects in the know"
+          nbWords="6"/>
+    </chapters>
+    <chapters
+        title="The Decorator Pattern"
+        nbPages="77"
+        author="Bert Bates">
+      <digest
+          content=" Decorating objects"
+          nbWords="2"/>
+    </chapters>
+  </books>
+</ualberta.ssrg.book:Library>

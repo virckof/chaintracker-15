@@ -1,0 +1,232 @@
+[comment encoding = UTF-8 /]
+[module generateScoring('http://ualberta.edu.cs.ssrg.phy.scoring')]
+
+
+[template public generateElement(aScoreRules : ScoreRules)]
+[comment @main/]
+[file ('ScoringManager.java', false, 'UTF-8')]
+package edu.ualberta.ssrg.mda.physics.template.main;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Observable;
+import java.util.Observer;
+
+import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.Fixture;
+
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Looper;
+import android.util.Log;
+
+import edu.ualberta.ssrg.mda.physics.template.persistence.ScoreVO;
+import edu.ualberta.ssrg.mda.physics.template.persistence.TouchEvent;
+
+public class ScoringManager implements Observer{
+	
+
+	MainActivity mainActivity;
+	private int scoreTotal;
+
+	private ArrayList<TouchEvent> touchEvents;
+	
+	private boolean playerLoses;
+	private boolean gameEnds;
+
+	public ScoringManager (){
+		scoreTotal=0;
+		playerLoses=false;
+		gameEnds=false;
+		touchEvents = new ArrayList<TouchEvent>();
+	}
+	
+	public ScoringManager(MainActivity mainActivity) {
+		this();
+		this.mainActivity = mainActivity;
+	}
+
+	public int getScoreTotal() {
+		return scoreTotal;
+	}
+
+	public void setScoreTotal(int scoreTotal) {
+		this.scoreTotal = scoreTotal;
+	}
+	
+	public boolean playerLoses() {
+		return playerLoses;
+	}
+
+	public void setPlayerLoses(boolean playerLoses) {
+		this.playerLoses = playerLoses;
+	}
+	
+	//Scoring Rule Collection
+	public void update(Observable o, Object pl) {
+		
+		 
+		ArrayList<TouchEvent> payload = (ArrayList<TouchEvent>) pl;
+		TouchEvent ev = payload.get(0);
+		ArrayList<Body> bodies = ev.getBodies();
+
+		//Simple Touching
+		if(bodies.size() < 1){
+			// To code.
+		}
+		//Collision of two objects coming from the collision collector.
+		else{
+			Body a = ev.getBodies().get(0);
+			Body b = ev.getBodies().get(1);
+
+			[for (collisionRule: CollisionRule | collisions)]
+		
+			if((a.m_userData.equals(PhysicsView.[collisionRule.actorAID/]Id) && b.m_userData.equals(PhysicsView.[collisionRule.actorBID/]Id)) || 
+					b.m_userData.equals(PhysicsView.[collisionRule.actorBID/]Id) && a.m_userData.equals(PhysicsView.[collisionRule.actorAID/]Id)){
+				scoreTotal += [collisionRule.action.points/];
+				playerLoses = [collisionRule.action.userLoses/];
+				gameEnds = [collisionRule.action.gameEnds/];
+				mainActivity.showToast("[collisionRule.action.points/]");
+			}
+
+			[/for]
+			
+		}
+		
+		// Register the touch event for statistics
+		touchEvents.add(ev);
+		
+		
+		if(gameEnds){
+			mainActivity.displayEndOfGameView();
+		}
+	}
+	
+	public ScoreVO getScoreVO(){
+		ScoreVO a = new ScoreVO();
+		a.setScoreTotal(String.valueOf(scoreTotal));
+		if(playerLoses){
+			a.setPlayerFinalSate("wins");
+		}
+		else{
+			a.setPlayerFinalSate("lost");
+		}
+		
+		a.setEvents(touchEvents.toString());
+		
+		return a;
+	}
+	
+	// Filter for small precision
+	public static double round(double unrounded, int precision, int roundingMode)
+	{
+	    BigDecimal bd = new BigDecimal(unrounded);
+	    BigDecimal rounded = bd.setScale(precision, roundingMode);
+	    return rounded.doubleValue();
+	}
+
+	public Object getTouchEvents() {
+		return touchEvents;
+	}
+
+	public void reset() {
+		scoreTotal=0;
+		playerLoses=false;
+		gameEnds=false;
+		touchEvents = new ArrayList<TouchEvent>();
+		
+	}
+	
+	public void initializeTimedEvents(){
+		
+		[for (timeRule: TimedRule | timed)]
+		TimedScoreEvent [timeRule.id/] = new TimedScoreEvent();
+		event.setGameEnding([timeRule.action.gameEnds/]);
+		event.setplayerLosesSate([timeRule.action.userLoses/]);
+		event.setPoints[timeRule.action.points/] );
+		event.setTimer([timeRule.time/]*1000 );
+		event.execute(mainActivity);
+		[/for]
+	}
+	
+	// Timed Rules Manager
+	protected class TimedScoreEvent extends AsyncTask<Context, Integer, String>{
+		
+		private int points;
+		private boolean gameEnding;
+		private boolean playerLosesSate;
+		private int timer;
+		
+		public int getTimer() {
+			return timer;
+		}
+
+		public void setTimer(int timer) {
+			this.timer = timer;
+		}
+
+		public int getPoints() {
+			return points;
+		}
+
+		public void setPoints(int points) {
+			this.points = points;
+		}
+
+		public boolean isGameEnding() {
+			return gameEnding;
+		}
+
+		public void setGameEnding(boolean gameEnding) {
+			this.gameEnding = gameEnding;
+		}
+
+		public boolean playerLosesSate() {
+			return playerLosesSate;
+		}
+
+		public void setplayerLosesSate(boolean playerLosesSate) {
+			this.playerLosesSate = playerLosesSate;
+		}
+		
+				
+		@Override
+        protected String doInBackground( Context... params ) {
+			
+			Looper.prepare();
+	    	while(!gameEnds){
+				try {
+					Thread.sleep(this.getTimer());
+					// Caught by onProgressUpdate below
+					gameEnds = this.gameEnding;
+					scoreTotal += this.points;
+					playerLoses = playerLosesSate;
+					publishProgress(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}				
+			}
+	    	return "Timed";
+		}
+		
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			if(gameEnds){
+				mainActivity.displayEndOfGameView();
+				
+
+			}
+			mainActivity.showToast("+"+this.points);
+		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+			this.cancel(true);
+		}
+	}
+
+}
+[/file]
+[/template]

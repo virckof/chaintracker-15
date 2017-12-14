@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ualberta.edu.cs.ssrg.phy.dynamics:Dynamics
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:ualberta.edu.cs.ssrg.phy.dynamics="http://ualberta.edu.cs.ssrg.phy.dynamics"
+    xsi:schemaLocation="http://ualberta.edu.cs.ssrg.phy.dynamics ../metamodels/Dynamics.ecore">
+  <activities
+  	  xsi:type="ualberta.edu.cs.ssrg.phy.dynamics:AppearActivity"
+      id="butterflyAppear"
+      actorID="butterfly"
+      frequency="1"
+      angularSpeed="10"
+      linearSpeed="10"/>
+  <environment
+      gravity="9.81"/>
+</ualberta.edu.cs.ssrg.phy.dynamics:Dynamics>

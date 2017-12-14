@@ -1,0 +1,90 @@
+-- @path Layout=/PhyDSLChain/metamodels/Layout.ecore
+-- @path Phydsl=/PhyDSLChain/metamodels/Phydsl.ecore
+
+-- Model Transformation Chain, transforms the game definition to a specific layout model
+module Game2Layout;
+create OUT : Layout from IN : Phydsl;
+
+-- Entrypoint Phydsl to Layout
+rule main {
+	from
+		a : Phydsl!Model
+	to 
+		b : Layout!Layout (
+			height <- a.game.first().layoutSection.first().grid.first().cordinate.y,
+			witdth <- a.game.first().layoutSection.first().grid.first().cordinate.x,
+			actors <- thisModule.getAllActors().asSequence(),
+			cells <- a.game.first().layoutSection.first().locations.asSequence(),
+			targets <- thisModule.getAllATargets()
+			
+		)
+}
+
+-- Transformation: Phydsl Actors to Layout Actors flat definition
+rule ActorGame2ActorLayout {
+	from
+		r : Phydsl!Actor
+	to 
+		rl : Layout!Actor (
+			density <- r.actorDefinition.first().density.density.value.toString(), 
+			elastisity <- r.actorDefinition.first().bounce.bouce.value.toString(),
+			friction <- r.actorDefinition.first().friction.friction.value.toString(),
+			image <- r.actorDefinition.first().file.type.value.toString(),
+			id <-  r.name
+			)
+}
+
+-- Transformation: Phydsl Location to Layout Cell, filters by type of super collisionable. Super Collisionable: Actor
+rule locationActor2Cell {
+	from
+		loc : Phydsl!Location(
+			loc.element.oclIsKindOf(Phydsl!Actor)
+		)	
+	to 
+		cell : Layout!Cell (
+			actor <- loc.element,
+			x <- loc.cordinate.x,
+			y <- loc.cordinate.y,
+			id <- thisModule.getCellID(cell)
+		)
+}
+
+
+-- Transformation: Phydsl Location to Layout Cell, filters by type of super collisionable. Super Collisionable: Target
+rule locationTarget2Cell {
+	from
+		loc : Phydsl!Location(
+			loc.element.oclIsKindOf(Phydsl!Target)
+		)	
+	to 
+		cell : Layout!Cell (
+			target <- loc.element,
+			x <- loc.cordinate.x,
+			y <- loc.cordinate.y,
+			id <- thisModule.getCellID(cell)
+		)
+}
+
+-- Transformation: Phydsl Target to Layout Target
+rule TargetGame2TargetLayout {
+	from
+		tg : Phydsl!Target
+	to 
+		tl : Layout!Target (
+			id <- tg.name
+		)
+}
+
+-- Helper: Gives a string id concatenating the x and y coordinates of a cell, used to give id to a Layout Cell
+helper def: getCellID(cell: Layout!Cell): String = cell.x.toString().concat('-').concat(cell.y.toString());
+
+-- Helper: Gives a set with all the Super Collisionables of SubType Target
+helper def: getAllATargets() : Set(Phydsl!Target) = Phydsl!SuperColisionable.allInstances()->select(tar | tar.oclIsKindOf(Phydsl!Target));
+
+-- Helper: Gives a set with all the Super Collisionables of SubType Actor
+helper def: getAllActors() : Set(Phydsl!Actor) = Phydsl!SuperColisionable.allInstances()->select(act | act.oclIsKindOf(Phydsl!Actor));
+
+-- Not used
+helper def : getValue(n: Phydsl!NumericType): String = n.value.toString();
+
+

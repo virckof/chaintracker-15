@@ -1,0 +1,17 @@
+-- @nsURI A=http://ualberta.edu.cs.ssrg.phy.a
+-- @nsURI B=http://ualberta.edu.cs.ssrg.phy.b
+
+module A2B;
+create OUT : B from IN : A;
+
+rule A2B {
+	from
+ 		a : A!A
+	to 
+		b : B!B (
+			name <- a.name,
+			description1 <- a.elementA1.description,
+			description2 <- a.elementA1.elementA2.description
+
+		)
+}

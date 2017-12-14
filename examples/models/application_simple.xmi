@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ASCII"?>
+<edu.ca.ualberta.ssrg.screensimple:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:edu.ca.ualberta.ssrg.screensimple="http://edu.ca.ualberta.ssrg.screensimple" name="appexample" useStorage="true" useGeoLocation="true" useCamera="true" package="ssrg.ualberta.appexample">
+  <screens name="login" isMain="true">
+    <transitions name="logint" destination="//@screens.1">
+      <trigger name="loginButton" isMenuItem="true"/>
+    </transitions>
+  </screens>
+  <screens name="mainMenu">
+    <transitions name="closet" destination="//@screens.2">
+      <trigger name="closeButton"/>
+    </transitions>
+  </screens>
+  <screens name="logout"/>
+  <screens name="anotherscreen"/>
+  <screens name="athridscreen"/>
+</edu.ca.ualberta.ssrg.screensimple:Application>

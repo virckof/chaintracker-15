@@ -1,0 +1,65 @@
+-- @path Phydsl=/PhyDSLChain/metamodels/Phydsl.ecore
+-- @path Dynamics=/PhyDSLChain/metamodels/Dynamics.ecore
+
+module Game2Dynamics;
+create OUT : Dynamics from IN : Phydsl;
+
+-- Entrypint to Phydsl to Dynamics
+rule main {
+	from
+		gam : Phydsl!Model
+	to 
+		dy : Dynamics!Dynamics (
+			activities <- gam.game.first().activitySection.first().activities,
+			environment <- gam.game.first().evironmentSection.first().environment.first()
+		)
+}
+
+-- Transfroms a generic activity into an appear activity, the ocl condition is 'activity definition has a valid coordinate'
+
+rule GameActivity2DynamicActivityAppear{
+	from
+		ga : Phydsl!Activity(
+			not ga.activityDefinition.first().cordinate.oclIsUndefined()
+		)
+		
+	to 
+		da : Dynamics!AppearActivity(
+			id <- ga.activityID,
+			actorID <- ga.linkedElement.name,
+			angularSpeed <- ga.activityDefinition.first().angularSpeed.angularSpeed.value.toString(),
+			linearSpeed <- ga.activityDefinition.first().linearSpeed.linearSpeed.value.toString(),
+			frequency <- ga.activityDefinition.first().frequency.frequency.value.toString(),
+			positionX <- ga.activityDefinition.first().cordinate.x,
+			positionY <- ga.activityDefinition.first().cordinate.y
+		)
+}
+
+-- Transfroms a generic activity into a move activity (no coordinarte feature needed)
+-- This transformation has a lot of flattening because of the grammar composition
+rule GameActivity2DynamicActivityMove{
+	from
+		ga : Phydsl!Activity(
+			ga.activityDefinition.first().cordinate.oclIsUndefined()
+		)
+	to 
+		da : Dynamics!MoveActivity(
+			id <- ga.activityID,
+			actorID <- ga.linkedElement.name,
+			angularSpeed <- ga.activityDefinition.first().angularSpeed.angularSpeed.value.toString(),
+			linearSpeed <- ga.activityDefinition.first().linearSpeed.linearSpeed.value.toString(),
+			frequency <- ga.activityDefinition.first().frequency.frequency.value.toString()			
+		)
+}
+
+
+-- Transforms the definition of a game's environment into a dynamic environment, almos one to one mapping
+rule GameEnvironments2DynamicsEnvironment {
+	from
+		envg : Phydsl!Environment
+	to 
+		envd : Dynamics!Environment (
+			gravity <- envg.gravity.first().gravity.value.toString(),
+			orientation <- envg.orientation.first().orientation
+		)
+}

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="phydsl"
+    nsURI="ualberta.edu.cs.ssrg.phy.phydsl" nsPrefix="phydsl">
+  <eClassifiers xsi:type="ecore:EClass" name="Model">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="abstractElements" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//AbstractElement"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="game" upperBound="-1" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Game"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DataType" eSuperTypes="platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//AbstractElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NumericType" eSuperTypes="platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//AbstractElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BooleanType" eSuperTypes="platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//AbstractElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AbstractElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Game">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="mobileActorSection" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//MobileActorSection"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="staticActorSection" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//StaticActorSection"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targetSection" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//TargetSection"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="layoutSection" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//LayoutSection"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="evironmentSection" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//EvironmentSection"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="activitySection" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//ActivitySection"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="socoringSection" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//ScoringSection"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ScoringSection">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="scoreRules" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//ScoreRule"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TargetSection">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targets" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Target"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MobileActorSection">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actors" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Actor"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="StaticActorSection">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actors" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Actor"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="LayoutSection">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="grid" upperBound="-1" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Grid"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="locations" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Location"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EvironmentSection">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="environment" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Environment"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Environment">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="gravity" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Gravity"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="orientation" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Orientation"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ActivitySection">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="activities" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Activity"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Activity">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="activityID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="linkedElement" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//SuperColisionable"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="activityDefinition" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//ActivityAction"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Grid">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="cordinate" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Coordinate"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Actor" eSuperTypes="platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//SuperColisionable">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actorDefinition" upperBound="-1"
+        eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//ActorDefinition"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="open" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//OpenType"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ActorDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="density" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Density"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="bounce" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Bounce"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="friction" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Friction"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="file" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//OpenType"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ActivityAction">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="frequency" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Frequency"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="angularSpeed" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//AngularSpeed"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="linearSpeed" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//LinearSpeed"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="cordinate" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Coordinate"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ScoreEffect">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="points" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//SignedInt"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="end" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Ends"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="loses" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Loses"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SignedInt">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sign" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Location">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="element" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//SuperColisionable"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="cordinate" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//Coordinate"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ScoreRule">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="scoreDefinition" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//ScoreDefinition"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ScoreDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="definition" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//ScoreType"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="effect" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//ScoreEffect"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ScoreType"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ContactScore" eSuperTypes="platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//ScoreType">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="elementA" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//SuperColisionable"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="elementB" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//SuperColisionable"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TimedScore" eSuperTypes="platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//ScoreType">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="time" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Coordinate">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="x" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="y" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Friction">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="friction" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//NumericType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Ends">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="boolean" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//BooleanType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Loses">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="boolean" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//BooleanType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Bounce">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="bouce" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//NumericType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AngularSpeed">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="angularSpeed" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//NumericType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="LinearSpeed">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="linearSpeed" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//NumericType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Frequency">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="frequency" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//NumericType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Density">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="density" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//NumericType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Gravity">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="gravity" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//NumericType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Orientation">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="orientation" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Target" eSuperTypes="platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//SuperColisionable"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OpenType">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//DataType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="LogicalType">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="ecore:EClass platform:/resource/ualberta.edu.cs.ssrg.phy.phydsl/src-gen/ualberta/edu/cs/ssrg/phy/Phydsl.ecore#//BooleanType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SuperColisionable">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+</ecore:EPackage>

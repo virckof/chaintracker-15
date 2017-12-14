@@ -1,0 +1,17 @@
+-- @path Composed=/StudentRefactoring/metamodels/Composed.ecore
+-- @path Simple=/StudentRefactoring/metamodels/Simple.ecore
+
+module Composed2Simple;
+create OUT : Simple from IN : Composed;
+
+rule Composed2Simple {
+	from
+		composed : Composed!Student
+	to 
+		simple : Simple!StudentSimple (
+			name <- composed.name,
+			supervisor <- composed.supervisor.name,
+			affiliation <- composed.supervisor.affiliation.name
+
+		)
+}
